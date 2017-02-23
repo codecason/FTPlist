@@ -1,0 +1,11 @@
+
+add support for secure tunneling
+
+maybe make fxp_data_receive() call recv() more than once, to fill up buffer, if
+  data still available and haven't read to buffer capacity yet
+
+maybe the grabbing of the "150" code upon data connection establishment should happen INSIDE _establish(), so the calling dude only has to know whether it failed
+
+prolly should add like a "fxp_supports()" and you can ask it, for example, whether it supports wildcards.  then it might run a test "NLST *.*" and if that fails, it knows.  something to tell whether the server supports a given feature
+
+implement a "batch" mode where commands are queued up and sent out at one time, then codes received all at once, to circumvent latency issues

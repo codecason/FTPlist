@@ -1,0 +1,19 @@
+FTPList/FTPCrawler Changelog:
+
+
+0.18    Sun Dec 16 18:41:22 CET 2001
+-Made main and status page in PHP. Remedy 2002 theme.
+-MySQL table status changed
+
+0.16    Sun Oct 14 04:49:55 CEST 2001
+-Degraded libfxp cause 0.1.3 is buggy
+-Added the sqlfix() function, so now there will be no errors on filenames 
+containing "'"
+
+0.15	Sun Sep 23 02:16:07 CEST 2001
+-Updated libfxp to 0.1.3
+-Made Makefile
+-Started this Changelog
+-Replaced all system() calls with forks, so now it's clusterable and multi-processing!
+
+

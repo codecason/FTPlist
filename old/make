@@ -1,0 +1,6 @@
+#!/usr/bin/bash
+echo "Makeing normal..."
+gcc -Wall -ggdb -lmysqlclient -Isrc/ -Ilibmillweed src/main.c src/spider.c src/mother.c src/mother_check.c src/check.c libfxp/libfxp.a  -o ftpcrawler
+echo "Makeing debug..."
+gcc -Wall -ggdb -lmysqlclient -Isrc/ -Ilibmillweed -DDEBUG src/main.c src/spider.c src/mother.c src/mother_check.c src/check.c libfxp/libfxp.a -o ftpcrawler_debug
+echo "Done!"

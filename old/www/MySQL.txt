@@ -1,0 +1,56 @@
+# phpMyAdmin MySQL-Dump
+# http://phpwizard.net/phpMyAdmin/
+#
+# Host: 217.78.42.80:3306 Database : remedyftp
+
+# --------------------------------------------------------
+#
+# Table structure for table 'ftp'
+#
+
+CREATE TABLE ftp (
+   id mediumint(9) NOT NULL auto_increment,
+   ip text NOT NULL,
+   port text NOT NULL,
+   uname text NOT NULL,
+   pass text NOT NULL,
+   cat text NOT NULL,
+   comments text NOT NULL,
+   is_crawling tinyint(4) DEFAULT '0' NOT NULL,
+   online tinyint(4) DEFAULT '0' NOT NULL,
+   PRIMARY KEY (id)
+);
+
+
+# --------------------------------------------------------
+#
+# Table structure for table 'ftp_files'
+#
+
+CREATE TABLE ftp_files (
+   file_id int(10) unsigned NOT NULL auto_increment,
+   path varchar(255) DEFAULT '0' NOT NULL,
+   file varchar(255) DEFAULT '0' NOT NULL,
+   ftp_id smallint(5) unsigned DEFAULT '0' NOT NULL,
+   PRIMARY KEY (file_id),
+   KEY ftp_id (ftp_id),
+   KEY file (file)
+);
+
+
+# --------------------------------------------------------
+#
+# Table structure for table 'ftp_newfiles'
+#
+
+CREATE TABLE ftp_newfiles (
+   file_id int(10) unsigned NOT NULL auto_increment,
+   path varchar(255) DEFAULT '0' NOT NULL,
+   file varchar(255) DEFAULT '0' NOT NULL,
+   ftp_id smallint(5) unsigned DEFAULT '0' NOT NULL,
+   PRIMARY KEY (file_id),
+   KEY ftp_id (ftp_id),
+   KEY file (file)
+);
+
+

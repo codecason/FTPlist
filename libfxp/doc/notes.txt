@@ -1,0 +1,5 @@
+
+add the following:
+  #define _FILE_OFFSET_BITS 64
+to your application build to correctly support large file transfers.
+NOTE: i've had problems with this #define in conjunction with fts (filesystem traversal)

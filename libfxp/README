@@ -1,0 +1,6 @@
+1. Make and make install libfxp in libfxp/
+2. Change mysql settings in src/ftpcrawler.h
+3. Run make
+4. Copy the contents of the www directory somewhere to your wwwroot, change inc/config.inc.ph
+5. Create a mysql database, with the same name as you enterd in the configs.
+6. mysql -p database -u user --password << ftplist.sql

@@ -1,0 +1,225 @@
+
+libfxp API Documentation
+$Id: libfxp_api.txt,v 1.6 2001/09/01 00:15:09 abscess Exp $
+
+
+[TYPES]
+
+fxp_error_t
+
+  Almost all libfxp functions return an fxp_error_t, which is usually either FXPOK for success or a
+  NEGATIVE error code.  Refer to the declaration of fxp_error_t in fxp.h for more detail.
+
+fxp_type_t
+
+  This is an enum of data transfer types.  Currently only ASCII and binary transfer types are defined.
+
+fxp_mode_t
+
+  This is an enum of data connection modes.  Currently only active and passive modes are defined.
+  Active mode means the server will attempt to connect to you to transfer data.  Passive mode means
+  you will attempt to connect to the server to transfer data.  Passive is useful if you are behind a
+  firewall for example, and the server won't be able to connect to your computer directly.  In general,
+  active transfers are the preferred mode and are usually the best supported and often fastest.
+
+fxp_handle_t
+
+  The library handle type.  Represents an "instance" of the library.  You make one per FTP connection.
+
+fxp_file_type_t
+
+  This is an enum of remote file type identifiers.  Refer to the declaration of fxp_file_type_t for
+  more detail.
+
+fxp_file_t
+
+  A structure representing information about a remote file, as returned by such commands as NLST.  This
+  is the "simpler" of the two defined file info structures, and doesn't contain the extended file
+  information that fxp_complete_file_t does.
+
+fxp_complete_file_t
+
+  A structure representing comprehensive information about a remote file, as returned by such commands
+  as LIST.  This structure is basically an fxp_file_t + a bunch of extra information.  It also contains
+  the raw file status line that the server returned.
+
+fxp_send_hook
+
+  Defines the type of a function you can install as a "send hook".  Once installed, the hook function
+  will be called with copies of the messages being sent to the FTP server.  Useful for logging and
+  debugging.
+
+fxp_receive_hook
+
+  Defines the type of a function you can install as a "receive hook".  Once installed, the hook
+  function will be called with copies of the messages being received from the FTP server.  Useful for
+  logging and debugging.
+
+
+[FUNCTIONS]
+
+const char *fxp_strerror(fxp_handle_t fxp, fxp_error_t error)
+
+  This function tries to return a useful string describing the given error.  Note: Make sure that the
+  error code you pass in isn't NEGATIVE!  That is, flip the sign of the error code returned from the
+  fxp_*() function.
+
+fxp_error_t fxp_init(fxp_handle_t *pfxp, const url_t *url)
+
+  The entry point into the library.  pfxp is a pointer to your fxp_handle_t.  This function validates
+  the url and sets up the fxp_handle_t upon success.  Call this function before any other functions in
+  this library.
+
+fxp_error_t fxp_destroy(fxp_handle_t *pfxp)
+
+  The exit point from the library.  Destroys and invalidates the handle.  Performs final cleanup.  You
+  should call this when you're done with the FTP connection and/or libfxp.
+
+fxp_error_t fxp_set_control_send_hook(fxp_handle_t fxp, fxp_send_hook hook)
+
+  Installs the hook as the send hook for the control connection.  Pass NULL to remove a previously
+  installed send hook.
+
+fxp_error_t fxp_set_control_receive_hook(fxp_handle_t fxp, fxp_receive_hook hook)
+
+  Installs the hook as the receive hook for the control connection.  Pass NULL to remove a previously
+  installed receive hook.
+
+fxp_error_t fxp_set_control_receive_timeout(fxp_handle_t fxp, unsigned long timeout)
+
+  Sets the timeout (in milliseconds) for control connection receives.  A timeout of 0 means to wait
+  indefinitely.
+
+fxp_error_t fxp_set_data_establish_timeout(fxp_handle_t fxp, unsigned long timeout)
+
+  Sets the timeout (in milliseconds) for establishing the data connection.  A timeout of 0 means to
+  wait indefinitely.
+
+fxp_error_t fxp_set_data_receive_timeout(fxp_handle_t fxp, unsigned long timeout)
+
+  Sets the timeout (in milliseconds) for data connection receives.  A timeout of 0 means to wait
+  indefinitely.
+
+fxp_error_t fxp_set_data_send_timeout(fxp_handle_t fxp, unsigned long timeout)
+
+  Sets the timeout (in milliseconds) for data connection sends.  A timeout of 0 means to wait
+  indefinitely.
+
+fxp_error_t fxp_connect(fxp_handle_t fxp, unsigned long timeout)
+
+  Connects to the FTP server.  This function uses the connection info from the url_t passed to
+  fxp_init().  timeout is the timeout (in milliseoonds) for the connection attempt.  A timeout of 0
+  means to wait indefinitely.
+
+fxp_error_t fxp_disconnect(fxp_handle_t fxp)
+
+  Attempts to disconnect gracefully from the FTP server.  The handle can be used again in another call
+  to fxp_connect().
+
+fxp_error_t fxp_login(fxp_handle_t fxp, const char *username, const char *password)
+
+  After establishing a connection to the server with fxp_connect(), call this function to log in.
+  Optionally, you can pass a username and/or password to override the default values from the url_t
+  passed to fxp_init().  Pass NULL to use the value(s) from the url_t.
+
+fxp_error_t fxp_type(fxp_handle_t fxp, fxp_type_t type)
+
+  Sets the data transfer type.  Note: Certain FTP operations, such as LIST, set the data transfer type
+  to ASCII implicitly, possibly overriding your setting.
+
+fxp_error_t fxp_mode(fxp_handle_t fxp, fxp_mode_t mode)
+
+  Sets the data connection mode for subsequent data transfer operations.
+
+fxp_error_t fxp_pwd(fxp_handle_t fxp, char *out_dirname, unsigned out_dirname_size)
+
+  Returns the current working remote directory.
+
+fxp_error_t fxp_cwd(fxp_handle_t fxp, const char *new_dirname)
+
+  Changes the current working remote directory.
+
+fxp_error_t fxp_cdup(fxp_handle_t fxp)
+
+  Ascends a single remote directory.
+
+fxp_error_t fxp_rename(fxp_handle_t fxp, const char *src_filename, const char *dst_filename)
+
+  Renames a remote file.  Can also be used as a 'move' operation, provided complete pathnames.
+
+fxp_error_t fxp_dele(fxp_handle_t fxp, const char *filename)
+
+  Deletes a remote file.
+
+fxp_error_t fxp_mkdir(fxp_handle_t fxp, const char *dirname)
+
+  Creates a new remote directory.
+
+fxp_error_t fxp_rmdir(fxp_handle_t fxp, const char *dirname)
+
+  Removes an existing remote directory.
+
+fxp_error_t fxp_nlst(fxp_handle_t fxp, const char *dirname, list_t *out_files)
+
+  Lists the files in the specified remote directory.  If dirname is NULL, lists the files in the
+  current working remote directory.  A list of allocated fxp_file_t's is returned in out_files.
+
+fxp_error_t fxp_list(fxp_handle_t fxp, const char *dirname, list_t *out_complete_files)
+
+  Lists the files in the specified remote directory.  If dirname is NULL, lists the files in the
+  current working remote directory.  A list of allocated fxp_complete_file_t's is returned in
+  out_complete_files.
+
+fxp_error_t fxp_stat(fxp_handle_t fxp, const char *filename, fxp_complete_file_t *out_complete_file)
+
+  Returns file information for the specified remote file.  This function is implemented using fxp_list()
+  and is fairly reliable.  NOTE: out_complete_file will not NECESSARILY contain complete file
+  information - in the case that the library was unable to determine complete file info, it will try to
+  determine just base file information (fxp_file_t).  The programmer should check the is_complete
+  member.  Also note that wildcards are NOT supported with this function.
+
+fxp_error_t fxp_noop(fxp_handle_t fxp)
+
+  Sends a NOOP command (an "empty" command - used in general to tell the server you're still alive and
+  just idle).
+
+fxp_error_t fxp_retr(fxp_handle_t fxp, const char *filename)
+
+  Opens an existing remote file for reading.
+
+fxp_error_t fxp_retr_rest(fxp_handle_t fxp, const char *filename, unsigned long offset)
+
+  Opens an existing remote file for reading, starting the read from the given byte offset.
+
+fxp_error_t fxp_retr_get_size(fxp_handle_t fxp, unsigned long long *out_size)
+
+  Returns the size of the remote file just opened with fxp_retr() or fxp_retr_rest().  Sure, you can get
+  the remote file size with an fxp_stat() - but this is the size returned by the server just as it
+  begins to send the file.  If you care, this method is preferred.
+
+fxp_error_t fxp_retr_read(fxp_handle_t fxp, char *out_buff, unsigned *out_buff_size)
+
+  Reads from the remote file previously opened with fxp_retr() or fxp_retr_rest().  The number of bytes
+  read is returned in out_buff_size.  Note: The open remote file will close automatically when the end
+  is hit.
+
+fxp_error_t fxp_retr_close(fxp_handle_t fxp)
+
+  Closes the remote file open for reading (this is usually a redundant call with no extra overhead).
+
+fxp_error_t fxp_stor(fxp_handle_t fxp, const char *filename)
+
+  Opens a new remote file for writing.
+
+fxp_error_t fxp_stor_rest(fxp_handle_t fxp, const char *filename, unsigned long offset)
+
+  Opens an existing remote file for writing, starting the write from the given byte offset.
+
+fxp_error_t fxp_stor_write(fxp_handle_t fxp, const char *buff, unsigned buff_size)
+
+  Writes to the remote file previously opened with fxp_stor() or ftp_stor_rest().
+
+fxp_error_t fxp_stor_close(fxp_handle_t fxp)
+
+  Closes the remote file open for writing.  This is NOT a redundant call - you MUST call this function
+  after finishing writing to the remote file.
